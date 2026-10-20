@@ -1,15 +1,18 @@
 # Polytrack
 Polytrack is a racing game based off of Trackmania. The game is developed by Kodub and is active on Itch.io. This is version 0.4 of Polytrack, and new updates will not be posted because I am lazy.
 
-## Self-hosted online leaderboard
+## Supabase leaderboard
 
-The game now sends leaderboard, profile, and replay requests to the same origin that serves the game. Run the game and API together with Node.js 22 or newer:
+The game sends leaderboard, profile, and replay requests to the Supabase Edge Function configured in `supabase-config.js`. To initialize the project:
 
 ```sh
-npm install
-npm start
+npx supabase login
+npx supabase link --project-ref eyseryoizzihcrdlbfgq
+npx supabase functions deploy polytrack
 ```
 
-Open `http://localhost:3000`. The SQLite database is created at `data/leaderboard.sqlite`; set `LEADERBOARD_DB_PATH` to move it to a persistent disk and `PORT` to change the listening port. Deploy the app behind HTTPS and attach persistent storage to the database path so scores survive restarts.
+First run `supabase/schema.sql` in the Supabase SQL Editor to create the tables and score-submission function. Supabase supplies the Edge Function's server credentials; never put a service-role key in the game. `supabase-config.js` contains the browser-safe publishable key.
 
-Each player has one best time per track. The existing client only submits scores when its determinism check allows it, but this server does not independently verify replays. Scores are therefore marked unverified, and a public deployment can be cheated; do not treat the rankings as authoritative without adding server-side replay verification and abuse controls.
+For local play, run `npm ci` and `npm start`, then open `http://localhost:3000`. In GitHub Codespaces, `.devcontainer/devcontainer.json` installs dependencies on creation, starts the game server whenever the Codespace starts, and forwards port 3000. A stopped Codespace cannot serve the game, but the Supabase leaderboard remains available independently.
+
+Each player has one best time per track. The game runs its client-side determinism check before uploading, but the Edge Function does not independently verify replays. Scores are marked unverified and can be spoofed; don’t treat the rankings as authoritative without adding server-side replay verification and abuse controls.

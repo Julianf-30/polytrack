@@ -1,0 +1,12 @@
+{
+	"postCreateCommand": "npm ci",
+	"postStartCommand": "npm start > /tmp/polytrack-server.log 2>&1 &",
+	"forwardPorts": [3000],
+	"portsAttributes": {
+		"3000": {
+			"label": "Polytrack",
+			"onAutoForward": "openBrowser",
+			"visibility": "private"
+		}
+	}
+}
